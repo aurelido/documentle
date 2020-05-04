@@ -1,0 +1,79 @@
+entity Repository {
+    name String required minlength(3),
+    handle String required minlength(2)
+}
+
+entity Document {
+	version Long,
+    title String required,
+    content TextBlob required,
+    status DocumentStatus,
+    created ZonedDateTime required,
+    lastUpdated ZonedDateTime required,
+    language Language
+}
+
+entity Tag {
+    name String required minlength(2)
+}
+
+entity Comment {
+	reference String required minlength(2),
+	title String,
+    author User,
+	description String
+}
+
+entity Reviewer {
+	firstName String,
+	lastName String,
+	email String,
+	phoneNumber String 
+}
+
+enum Language {
+    FRENCH, ENGLISH, SPANISH
+}
+
+enum DocumentStatus {
+	DEFINITION, REVIEW, PENDING_APPROVAL, ONLINE, OFFLINE
+}
+
+enum Privilege {
+	READ,	//Only read access
+    REVIEW,	// Allows adding comments to the document
+    WRITE,	// Modify the content
+    APPROVE,// Aprporve document. Approval is needed to allow publishing
+    PUBLISH	// Change the docuement status to ONLINE/OFFLINE
+}
+
+entity Permission {
+	privilege Privilege
+}
+
+relationship OneToOne {
+	Permission to User,
+    Permission to Document
+}
+
+relationship ManyToOne {
+    Repository{user(login)} to User,
+    Document{repository(name)} to Repository,
+    Comment{user(login)} to User
+}
+
+relationship ManyToMany {
+    Document{tag(name)} to Tag{entry},
+    Document{comment(reference)} to Comment{entry}
+}
+
+// Set pagination options
+paginate Tag, Comment with infinite-scroll
+
+paginate Document, Reviewer with pagination
+
+// Set service options to all except few
+service all with serviceImpl except Document, Reviewer
+
+// Set an angular suffix
+// angularSuffix * with mySuffix
