@@ -1,4 +1,4 @@
-entity Repository {
+entity Catalogue {
     name String required minlength(3),
     handle String required minlength(2)
 }
@@ -20,7 +20,6 @@ entity Tag {
 entity Comment {
 	reference String required minlength(2),
 	title String,
-    author User,
 	description String
 }
 
@@ -40,11 +39,11 @@ enum DocumentStatus {
 }
 
 enum Privilege {
-	READ,	//Only read access
-    REVIEW,	// Allows adding comments to the document
-    WRITE,	// Modify the content
-    APPROVE,// Aprporve document. Approval is needed to allow publishing
-    PUBLISH	// Change the docuement status to ONLINE/OFFLINE
+	READ,	 //Only read access
+    REVIEW,	 // Allows adding comments to the document
+    WRITE,	 // Modify the content
+    APPROVE, // Approve document. Approval is needed to allow publishing
+    PUBLISH	 // Change the document status to ONLINE/OFFLINE
 }
 
 entity Permission {
@@ -56,10 +55,15 @@ relationship OneToOne {
     Permission to Document
 }
 
+relationship OneToMany {
+    Comment{document} to Document
+    Comment{user} to User
+}
+
 relationship ManyToOne {
-    Repository{user(login)} to User,
-    Document{repository(name)} to Repository,
-    Comment{user(login)} to User
+    Catalogue{user(login)} to User,
+    Document{catalogue(name)} to Catalogue,
+
 }
 
 relationship ManyToMany {
